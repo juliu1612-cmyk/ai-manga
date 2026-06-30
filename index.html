@@ -203,27 +203,46 @@ makeBarChart(ids[t],types[t],names.map(function(n,i){return{name:n,value:Math.ro
 });
 }
 
-var alertData=[
-{time:'14:32:15',level:'error',source:'seedance2.0',msg:'GPU显存不足，请求排队超时'},
-{time:'14:31:48',level:'warn',source:'Kling-3.0',msg:'API响应延迟超过阈值500ms'},
-{time:'14:30:22',level:'error',source:'Happyhourse1.0',msg:'模型推理失败，自动重试第2次'},
-{time:'14:28:05',level:'info',source:'ViduQ3-turbo',msg:'实例扩容完成，新增4个计算节点'},
-{time:'14:25:33',level:'warn',source:'seedance2.0 fast',msg:'Token消耗速率异常+35%'},
-{time:'14:20:17',level:'error',source:'翻译服务',msg:'下游接口502，已切换备用线路'}
-];
+// 从当日0:00开始模拟告警，间隔30-60分钟
+var alertData=[];
 var alertSources=['seedance2.0','seedance2.0 fast','Happyhourse1.0','Kling-3.0','ViduQ3-turbo','翻译服务','制作管线','小说服务','剧本服务'];
 var alertMessages={error:['GPU显存不足，请求排队超时','模型推理失败，自动重试第3次','下游接口502，已切换备用线路','连接池耗尽，等待恢复','Token校验失败，请求被拒绝'],warn:['API响应延迟超过阈值','Token消耗速率异常+42%','QPS接近上限95%','缓存命中率下降至68%','实例负载过高83%'],info:['实例扩容完成，新增6个计算节点','模型版本更新至v3.2.1','配置热加载完成','健康检查通过','流量切换完成']};
+var alertTimeCursor=0; // 当日从0:00开始的分钟数
 
-function addNewAlert(){
+function addNewAlertAt(minutes){
 var levels=['error','error','warn','warn','info'];
 var lv=levels[Math.floor(Math.random()*levels.length)];
 var msgs=alertMessages[lv];
 var msg=msgs[Math.floor(Math.random()*msgs.length)];
-var d=new Date();
-var t=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
+var hh=Math.floor(minutes/60),mm=minutes%60;
+var t=('0'+hh).slice(-2)+':'+('0'+mm).slice(-2)+':'+('0'+Math.floor(Math.random()*60)).slice(-2);
 alertData.unshift({time:t,level:lv,source:alertSources[Math.floor(Math.random()*alertSources.length)],msg:msg});
 if(alertData.length>20)alertData.pop();
+}
+
+// 初始化：从0:00到当前时间，按30-60分钟间隔生成历史告警
+function initAlerts(){
+var now=new Date();
+var currentMinutes=now.getHours()*60+now.getMinutes();
+alertTimeCursor=0;
+while(alertTimeCursor<currentMinutes){
+alertTimeCursor+=30+Math.floor(Math.random()*31);
+if(alertTimeCursor<currentMinutes)addNewAlertAt(alertTimeCursor);
+}
 renderAlerts();
+}
+
+function scheduleNextAlert(){
+var now=new Date();
+var currentMinutes=now.getHours()*60+now.getMinutes();
+// 下一次告警时间：当前时间 + 30-60分钟
+var nextMinutes=currentMinutes+30+Math.floor(Math.random()*31);
+var delayMs=(nextMinutes-currentMinutes)*60000;
+setTimeout(function(){
+addNewAlertAt(nextMinutes);
+renderAlerts();
+scheduleNextAlert();
+},delayMs);
 }
 
 function renderAlerts(){
@@ -238,18 +257,12 @@ c1=echarts.init(document.getElementById('chart1'));
 c2=echarts.init(document.getElementById('chart2'));
 updateC1();updateC2();
 updateBars();
-renderAlerts();
+initAlerts();
+scheduleNextAlert();
 
 setInterval(function(){updateC1()},60000);
 setInterval(function(){updateC2()},60000);
 setInterval(function(){today+=Math.random()*.5;renderOverview();renderModels();updateBars()},3000);
-// 30-60分钟随机新增一条告警
-function scheduleNextAlert(){
-var delay=(30+Math.floor(Math.random()*31))*60000;
-setTimeout(function(){addNewAlert();scheduleNextAlert()},delay);
-}
-// 首次10秒后新增一条，之后按30-60分钟
-setTimeout(function(){addNewAlert();scheduleNextAlert()},10000);
 
 window.addEventListener('resize',function(){c1&&c1.resize();c2&&c2.resize()});
 })();
