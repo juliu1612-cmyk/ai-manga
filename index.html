@@ -243,7 +243,12 @@ renderAlerts();
 setInterval(function(){updateC1()},60000);
 setInterval(function(){updateC2()},60000);
 setInterval(function(){today+=Math.random()*.5;renderOverview();renderModels();updateBars()},3000);
-setInterval(function(){addNewAlert()},45000);
+// 30-60分钟随机新增一条告警
+function scheduleNextAlert(){
+var delay=(30+Math.floor(Math.random()*31))*60000;
+setTimeout(function(){addNewAlert();scheduleNextAlert()},delay);
+}
+scheduleNextAlert();
 
 window.addEventListener('resize',function(){c1&&c1.resize();c2&&c2.resize()});
 })();
