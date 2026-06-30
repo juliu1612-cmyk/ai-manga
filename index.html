@@ -34,7 +34,8 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 .main-row{display:grid;grid-template-columns:300px 1fr;gap:8px;flex:1;min-height:0;max-height:100%;overflow:hidden}
 
 /* 模型卡片 */
-.model-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;overflow-x:hidden;height:100%}
+.model-list-wrap{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.model-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;overflow-x:hidden;flex:1}
 .model-list::after{content:'';flex:1}
 .m-card{background:linear-gradient(135deg,rgba(13,31,58,.9),rgba(10,22,40,.95));border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:10px 14px;flex-shrink:0}
 .m-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
@@ -98,7 +99,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 <div class="overview-cards" id="overviewCards"></div>
 
 <div class="main-row">
-<div class="model-list" id="modelList"></div>
+<div class="model-list-wrap"><div class="panel-title" style="margin-bottom:6px;flex-shrink:0">模型数据监控</div><div class="model-list" id="modelList"></div></div>
 <div class="charts-right">
 <div class="chart-top-row">
 <div class="panel"><div class="panel-hd"><span class="panel-title">当日小时维度 Token 消耗实时数据</span><span class="hour-badge" id="hourBadge"></span></div><div class="chart-wrap" id="chart1"></div></div>
@@ -135,7 +136,7 @@ var bizKeys=['novel','script','produce','translate'];
 
 function renderOverview(){
 var r=bizR;
-var d=[{icon:'⚡',label:'今日 TOKEN 消耗',val:today.toFixed(0),unit:'K'},{icon:'📚',label:'小说 TOKEN 消耗',val:(today*r.novel).toFixed(0),unit:'K'},{icon:'📝',label:'剧本 TOKEN 消耗',val:(today*r.script).toFixed(0),unit:'K',orange:true},{icon:'🎬',label:'制作 TOKEN 消耗',val:(today*r.produce).toFixed(0),unit:'K'},{icon:'🌐',label:'翻译 TOKEN 消耗',val:(today*r.translate).toFixed(0),unit:'K'},{icon:'⏱️',label:'平均响应时长',val:Math.round(340+(Math.random()-.5)*20),unit:'ms',orange:true}];
+var d=[{icon:'⚡',label:'今日 TOKEN 消耗',val:today.toFixed(0),unit:'K'},{icon:'📚',label:'小说 TOKEN 消耗',val:(today*r.novel).toFixed(0),unit:'K'},{icon:'📝',label:'剧本 TOKEN 消耗',val:(today*r.script).toFixed(0),unit:'K',orange:true},{icon:'🎬',label:'AI短剧制作TOKEN消耗',val:(today*r.produce).toFixed(0),unit:'K'},{icon:'🌐',label:'本地化翻译TOKEN消耗',val:(today*r.translate).toFixed(0),unit:'K'},{icon:'⏱️',label:'平均响应时长',val:Math.round(340+(Math.random()-.5)*20),unit:'ms',orange:true}];
 var h='';
 for(var i=0;i<d.length;i++){var o=d[i];h+='<div class="ov-card"><div class="ov-hd"><span class="ov-icon">'+o.icon+'</span><span class="ov-label">'+o.label+'</span></div><span class="ov-val'+(o.orange?' orange':'')+'">'+o.val+'</span><span class="ov-unit">'+o.unit+'</span></div>'}
 document.getElementById('overviewCards').innerHTML=h;
