@@ -220,13 +220,20 @@ alertData.unshift({time:t,level:lv,source:alertSources[Math.floor(Math.random()*
 if(alertData.length>20)alertData.pop();
 }
 
-// 初始化：从0:00到当前时间，按30-60分钟间隔生成历史告警
+// 判断某分钟是否在高峰时段(10:00-22:00)
+function isPeakHour(minutes){
+var h=Math.floor(minutes/60);
+return h>=10 && h<=22;
+}
+
+// 初始化：从0:00到当前时间，高峰40分钟/低峰150分钟间隔生成历史告警
 function initAlerts(){
 var now=new Date();
 var currentMinutes=now.getHours()*60+now.getMinutes();
 alertTimeCursor=0;
 while(alertTimeCursor<currentMinutes){
-alertTimeCursor+=30+Math.floor(Math.random()*31);
+var interval=isPeakHour(alertTimeCursor)?(35+Math.floor(Math.random()*11)):(140+Math.floor(Math.random()*21));
+alertTimeCursor+=interval;
 if(alertTimeCursor<currentMinutes)addNewAlertAt(alertTimeCursor);
 }
 renderAlerts();
@@ -235,8 +242,9 @@ renderAlerts();
 function scheduleNextAlert(){
 var now=new Date();
 var currentMinutes=now.getHours()*60+now.getMinutes();
-// 下一次告警时间：当前时间 + 30-60分钟
-var nextMinutes=currentMinutes+30+Math.floor(Math.random()*31);
+// 根据当前是否高峰决定下次间隔
+var interval=isPeakHour(currentMinutes)?(35+Math.floor(Math.random()*11)):(140+Math.floor(Math.random()*21));
+var nextMinutes=currentMinutes+interval;
 var delayMs=(nextMinutes-currentMinutes)*60000;
 setTimeout(function(){
 addNewAlertAt(nextMinutes);
