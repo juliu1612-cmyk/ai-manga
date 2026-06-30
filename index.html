@@ -248,7 +248,8 @@ function scheduleNextAlert(){
 var delay=(30+Math.floor(Math.random()*31))*60000;
 setTimeout(function(){addNewAlert();scheduleNextAlert()},delay);
 }
-scheduleNextAlert();
+// 首次10秒后新增一条，之后按30-60分钟
+setTimeout(function(){addNewAlert();scheduleNextAlert()},10000);
 
 window.addEventListener('resize',function(){c1&&c1.resize();c2&&c2.resize()});
 })();
