@@ -285,7 +285,7 @@ scheduleNextAlert();
 }
 
 function renderAlerts(){
-var lb={error:'ERROR',warn:'WARN',info:'INFO'},h='';
+var lb={error:'高',warn:'中',info:'低'},h='';
 for(var j=0;j<alertData.length;j++){var a=alertData[j];h+='<div class="alert-row"><span class="alert-td">'+a.time+'</span><span class="alert-td"><span class="alert-lvl '+a.level+'">'+lb[a.level]+'</span></span><span class="alert-td">'+a.source+'</span><span class="alert-td">'+a.msg+'</span></div>'}
 document.getElementById('alertBody').innerHTML=h;
 }
